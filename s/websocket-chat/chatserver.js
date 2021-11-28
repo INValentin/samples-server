@@ -10,6 +10,7 @@
 "use strict";
 
 var https = require('https');
+var http = require("http");
 var fs = require('fs');
 var WebSocketServer = require('websocket').server;
 
@@ -21,8 +22,8 @@ var appendToMakeUnique = 1;
 // server.
 
 var httpsOptions = {
-  key: fs.readFileSync("/etc/pki/tls/private/mdn-samples.mozilla.org.key"),
-  cert: fs.readFileSync("/etc/pki/tls/certs/mdn-samples.mozilla.org.crt")
+  key: fs.readFileSync("mdn.key"),
+  cert: fs.readFileSync("mdn.crt")
 };
 
 // Our HTTPS server does nothing but service WebSocket
@@ -30,21 +31,31 @@ var httpsOptions = {
 // requests are handled by the main server on the box. If you
 // want to, you can return real HTML here and serve Web content.
 
-var httpsServer = https.createServer(httpsOptions, function(request, response) {
-    console.log((new Date()) + " Received request for " + request.url);
-    response.writeHead(404);
-    response.end();
+// var httpsServer = https.createServer(httpsOptions, function(request, response) {
+//     console.log((new Date()) + " Received request for " + request.url);
+//     response.writeHead(404);
+//     response.end();
+//   });
+
+var httpServer = http.createServer(function(request, response) {
+  console.log((new Date()) + " Received request for " + request.url);
+  response.writeHead(404);
+  response.end();
 });
 
-httpsServer.listen(6502, function() {
+httpServer.listen(6502, function() {
     console.log((new Date()) + " Server is listening on port 6502");
 });
+// httpsServer.listen(6502, function() {
+//     console.log((new Date()) + " Server is listening on port 6502");
+// });
 
 // Create the WebSocket server
 
 console.log("***CREATING WEBSOCKET SERVER");
 var wsServer = new WebSocketServer({
-    httpServer: httpsServer,
+    // httpServer: httpsServer,
+    httpServer: httpServer,
     autoAcceptConnections: false
 });
 console.log("***CREATED");
